@@ -27,9 +27,7 @@ class module_youtube(GDO_Module):
         video_id = VideoResolver.video_id(text)
         if not video_id:
             return
-        video, created = await self.store_video(video_id)
-        if not created:
-            return
+        video, _created = await self.store_video(video_id)
         message.result(self.render_announcement(video))
         await message.deliver(with_events=False)
 
