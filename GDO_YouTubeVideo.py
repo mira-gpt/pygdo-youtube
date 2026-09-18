@@ -41,9 +41,13 @@ class GDO_YouTubeVideo(WithYouTubeVotes, GDO):
         return self.gdo_val('yt_title')
 
     def render_card(self) -> str:
-        card = GDT_Card().gdo(self).creator_header()
+        # ``yt_creator`` is the first Dog user who shared the link. Keep it
+        # prominent in the card instead of hiding it in the generic header;
+        # reposts increase yt_times_added but deliberately never replace it.
+        card = GDT_Card().gdo(self)
         card.get_header().add_field(GDT_Link().href(self.gdo_val('yt_url')).text_raw(self.render_name()))
         card.get_content().add_fields(
+            self.column('yt_creator'), self.column('yt_created'),
             self.column('yt_description'), self.column('yt_channel'),
             self.column('yt_duration'), self.column('yt_views'), self.column('yt_likes'),
             self.column('yt_times_added'),
