@@ -4,6 +4,7 @@ from gdo.core.GDT_AutoInc import GDT_AutoInc
 from gdo.core.GDT_Creator import GDT_Creator
 from gdo.core.GDT_String import GDT_String
 from gdo.core.GDT_Text import GDT_Text
+from gdo.core.GDT_UInt import GDT_UInt
 from gdo.core.GDT_Unique import GDT_Unique
 from gdo.date.GDT_Created import GDT_Created
 from gdo.net.GDT_Url import GDT_Url
@@ -25,6 +26,7 @@ class GDO_YouTubeVideo(WithYouTubeVotes, GDO):
             GDT_Text('yt_description').maxlen(4096),
             GDT_String('yt_channel').maxlen(256),
             GDT_Url('yt_thumbnail').maxlen(1024),
+            GDT_UInt('yt_times_added').not_null().initial('1'),
             GDT_Creator('yt_creator'),
             GDT_Created('yt_created'),
             GDT_VoteCount('yt_vote_count'),
@@ -40,6 +42,7 @@ class GDO_YouTubeVideo(WithYouTubeVotes, GDO):
         card.get_header().add_field(GDT_Link().href(self.gdo_val('yt_url')).text_raw(self.render_name()))
         card.get_content().add_fields(
             self.column('yt_description'), self.column('yt_channel'),
+            self.column('yt_times_added'),
             self.column('yt_vote_count'), self.column('yt_vote_score'),
         )
         return card.render_html()

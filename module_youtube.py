@@ -35,6 +35,7 @@ class module_youtube(GDO_Module):
     async def store_video(self, video_id: str) -> tuple[GDO_YouTubeVideo, bool]:
         table = GDO_YouTubeVideo.table()
         if existing := table.get_by_val('yt_video_id', video_id):
+            existing.increase('yt_times_added')
             return existing, False
         try:
             metadata = await VideoResolver.resolve(video_id)

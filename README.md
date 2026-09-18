@@ -2,7 +2,7 @@
 
 `pygdo-youtube` records YouTube links posted to PyGDO connectors, fetches their
 public metadata, announces the title, and keeps a searchable, likeable video
-catalogue.
+catalogue. Repeated posts increase the persistent **Times added** counter.
 
 ## Install
 
