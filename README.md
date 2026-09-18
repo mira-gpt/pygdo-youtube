@@ -22,9 +22,11 @@ be fetched.
 
 - Post a `youtube.com`, `youtu.be`, `shorts`, `live`, or `embed` video URL in a
   connected chat. New videos are stored and announced once.
-- `$youtube [search]` or `$yt [search]` lists stored videos. Search covers
-  title and description.
-- `$youtube.up <id>` or `$ytup <id>` likes a video through PyGDO Votes.
+- `$yt` shows the command overview. `$youtube <page>` or `$yt <page>` lists
+  stored videos; use `--search=<term>` to search title and description.
+- `$youtube.like <id>` or `$ytl <id>` likes a video through PyGDO Votes.
+- `$youtube.abbo [1|0]` or `$yta [1|0]` enables or disables global new-video
+  announcements for the current channel or private-message context.
 
 Only public metadata is fetched. The resolver does not execute page scripts or
 use account cookies.

@@ -3,8 +3,10 @@ from gdo.base.GDO import GDO
 from gdo.base.GDO_Module import GDO_Module
 from gdo.base.Logger import Logger
 from gdo.base.Message import Message
+from gdo.ui.GDT_Link import GDT_Link
 from gdo.youtube.GDO_YouTubeVideo import GDO_YouTubeVideo
 from gdo.youtube.GDO_YouTubeVote import GDO_YouTubeVote
+from gdo.youtube.GDO_YouTubeAbo import GDO_YouTubeAbo
 from gdo.youtube.VideoResolver import VideoResolver
 
 
@@ -15,7 +17,12 @@ class module_youtube(GDO_Module):
         return ['vote', 'net']
 
     def gdo_classes(self) -> list[type[GDO]]:
-        return [GDO_YouTubeVideo, GDO_YouTubeVote]
+        return [GDO_YouTubeVideo, GDO_YouTubeVote, GDO_YouTubeAbo]
+
+    def gdo_init_sidebar(self, page):
+        page._left_bar.add_field(
+            GDT_Link().href(self.href('videos', '&page=1')).text('link_youtube_popular').icon('youtube')
+        )
 
     def gdo_subscribe_events(self):
         Application.EVENTS.subscribe('new_message', self.on_new_message)
@@ -27,9 +34,13 @@ class module_youtube(GDO_Module):
         video_id = VideoResolver.video_id(text)
         if not video_id:
             return
-        video, _created = await self.store_video(video_id)
+        video, created = await self.store_video(video_id)
         message.result(self.render_announcement(video))
         await message.deliver(with_events=False)
+        if created:
+            await GDO_YouTubeAbo.announce(
+                self.render_announcement(video), video.gdo_val('yt_url'),
+                message._env_channel, message._env_user)
 
     async def store_video(self, video_id: str) -> tuple[GDO_YouTubeVideo, bool]:
         table = GDO_YouTubeVideo.table()
@@ -82,6 +93,6 @@ class module_youtube(GDO_Module):
         local_likes = int(video.gdo_val('yt_vote_count') or 0)
         return (
             f'YouTube: {video.render_name()} - {minutes}:{seconds:02d} - '
-            f'{likes:,} likes - {views:,} views - {added:,} times added - '
-            f'{local_likes:,} likes so far'
+            f'{likes:,} YouTube likes - {views:,} views - {added:,} times added - '
+            f'{local_likes:,} Dog likes so far'
         )

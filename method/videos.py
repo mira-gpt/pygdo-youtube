@@ -4,6 +4,7 @@ from gdo.base.Query import Query
 from gdo.base.Render import Mode
 from gdo.table.MethodQueryTable import MethodQueryTable
 from gdo.table.GDT_Table import TableMode
+from gdo.message.GDT_HTML import GDT_HTML
 from gdo.youtube.GDO_YouTubeVideo import GDO_YouTubeVideo
 
 
@@ -18,6 +19,11 @@ class videos(MethodQueryTable):
 
     def gdo_table(self) -> GDO:
         return GDO_YouTubeVideo.table()
+
+    def gdo_execute(self) -> GDT:
+        if not self._env_http and not self._raw_args.pargs and not self._raw_args.args:
+            return GDT_HTML().text(self.gdo_module().t('msg_youtube_commands'))
+        return super().gdo_execute()
 
     def gdo_table_mode(self) -> TableMode:
         return TableMode.CARDS
