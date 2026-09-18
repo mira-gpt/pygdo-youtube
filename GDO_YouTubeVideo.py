@@ -14,6 +14,8 @@ from gdo.ui.GDT_Title import GDT_Title
 from gdo.vote.GDT_VoteCount import GDT_VoteCount
 from gdo.vote.GDT_VoteOutcome import GDT_VoteOutcome
 from gdo.youtube.WithYouTubeVotes import WithYouTubeVotes
+from gdo.youtube.GDT_YouTubeCount import GDT_YouTubeCount
+from gdo.youtube.GDT_YouTubeDuration import GDT_YouTubeDuration
 
 
 class GDO_YouTubeVideo(WithYouTubeVotes, GDO):
@@ -26,9 +28,9 @@ class GDO_YouTubeVideo(WithYouTubeVotes, GDO):
             GDT_Text('yt_description').maxlen(4096),
             GDT_String('yt_channel').maxlen(256),
             GDT_Url('yt_thumbnail').maxlen(1024),
-            GDT_UInt('yt_duration').bytes(4).not_null().initial('0'),
-            GDT_UInt('yt_views').bytes(8).not_null().initial('0'),
-            GDT_UInt('yt_likes').bytes(8).not_null().initial('0'),
+            GDT_YouTubeDuration('yt_duration').bytes(4).not_null().initial('0'),
+            GDT_YouTubeCount('yt_views').bytes(8).not_null().initial('0'),
+            GDT_YouTubeCount('yt_likes').bytes(8).not_null().initial('0'),
             GDT_UInt('yt_times_added').not_null().initial('1'),
             GDT_Creator('yt_creator'),
             GDT_Created('yt_created'),
