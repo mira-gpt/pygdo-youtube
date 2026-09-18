@@ -20,6 +20,9 @@ class YouTubeMetadata:
     description: str
     channel: str
     thumbnail: str
+    duration: int
+    views: int
+    likes: int
 
 
 class _MetadataParser(HTMLParser):
@@ -67,13 +70,40 @@ class VideoResolver:
         parser = _MetadataParser()
         parser.feed(document)
         metadata = parser.metadata
+        player = cls._player_response(document)
+        details = player.get('videoDetails', {})
+        microformat = player.get('microformat', {}).get('playerMicroformatRenderer', {})
         title = metadata.get('og:title') or metadata.get('title') or ''
         description = metadata.get('og:description') or metadata.get('description') or ''
-        channel = metadata.get('author') or metadata.get('og:site_name') or 'YouTube'
+        channel = metadata.get('author') or details.get('author') or metadata.get('og:site_name') or 'YouTube'
         thumbnail = metadata.get('og:image') or f'https://i.ytimg.com/vi/{video_id}/hqdefault.jpg'
         if not title:
             title, channel = cls._oembed(url)
-        return YouTubeMetadata(video_id, url, title or video_id, description, channel, thumbnail)
+        return YouTubeMetadata(
+            video_id, url, title or details.get('title') or video_id,
+            description or microformat.get('description', {}).get('simpleText', ''), channel, thumbnail,
+            cls._number(details.get('lengthSeconds')), cls._number(details.get('viewCount')),
+            cls._number(microformat.get('likeCount')),
+        )
+
+    @staticmethod
+    def _player_response(document: str) -> dict:
+        marker = 'ytInitialPlayerResponse = '
+        start = document.find(marker)
+        if start < 0:
+            return {}
+        try:
+            response, _ = json.JSONDecoder().raw_decode(document[start + len(marker):])
+            return response if isinstance(response, dict) else {}
+        except (json.JSONDecodeError, ValueError):
+            return {}
+
+    @staticmethod
+    def _number(value) -> int:
+        try:
+            return max(0, int(value or 0))
+        except (TypeError, ValueError):
+            return 0
 
     @staticmethod
     def _get(url: str) -> str:

@@ -20,3 +20,10 @@ class VideoResolverTest(unittest.TestCase):
         self.assertIsNone(VideoResolver.video_id('https://example.com/watch?v=dQw4w9WgXcQ'))
         with self.assertRaises(ValueError):
             VideoResolver.canonical_url('nope')
+
+    def test_extracts_player_response_counts(self):
+        document = 'prefix ytInitialPlayerResponse = {"videoDetails":{"lengthSeconds":"303","viewCount":"42"},"microformat":{"playerMicroformatRenderer":{"likeCount":"7"}}}; suffix'
+        data = VideoResolver._player_response(document)
+        self.assertEqual('303', data['videoDetails']['lengthSeconds'])
+        self.assertEqual(42, VideoResolver._number(data['videoDetails']['viewCount']))
+        self.assertEqual(7, VideoResolver._number(data['microformat']['playerMicroformatRenderer']['likeCount']))

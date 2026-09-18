@@ -26,6 +26,9 @@ class GDO_YouTubeVideo(WithYouTubeVotes, GDO):
             GDT_Text('yt_description').maxlen(4096),
             GDT_String('yt_channel').maxlen(256),
             GDT_Url('yt_thumbnail').maxlen(1024),
+            GDT_UInt('yt_duration').bytes(4).not_null().initial('0'),
+            GDT_UInt('yt_views').bytes(8).not_null().initial('0'),
+            GDT_UInt('yt_likes').bytes(8).not_null().initial('0'),
             GDT_UInt('yt_times_added').not_null().initial('1'),
             GDT_Creator('yt_creator'),
             GDT_Created('yt_created'),
@@ -42,6 +45,7 @@ class GDO_YouTubeVideo(WithYouTubeVotes, GDO):
         card.get_header().add_field(GDT_Link().href(self.gdo_val('yt_url')).text_raw(self.render_name()))
         card.get_content().add_fields(
             self.column('yt_description'), self.column('yt_channel'),
+            self.column('yt_duration'), self.column('yt_views'), self.column('yt_likes'),
             self.column('yt_times_added'),
             self.column('yt_vote_count'), self.column('yt_vote_score'),
         )

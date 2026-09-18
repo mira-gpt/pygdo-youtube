@@ -54,10 +54,21 @@ class module_youtube(GDO_Module):
             'yt_description': metadata.description,
             'yt_channel': metadata.channel,
             'yt_thumbnail': metadata.thumbnail,
+            'yt_duration': metadata.duration,
+            'yt_views': metadata.views,
+            'yt_likes': metadata.likes,
         }).insert(), True
 
     @staticmethod
     def render_announcement(video: GDO_YouTubeVideo) -> str:
-        channel = video.gdo_val('yt_channel')
-        suffix = f' — {channel}' if channel else ''
-        return f'YouTube: {video.render_name()}{suffix}'
+        duration = int(video.gdo_val('yt_duration') or 0)
+        minutes, seconds = divmod(duration, 60)
+        views = int(video.gdo_val('yt_views') or 0)
+        likes = int(video.gdo_val('yt_likes') or 0)
+        added = int(video.gdo_val('yt_times_added') or 0)
+        local_likes = int(video.gdo_val('yt_vote_count') or 0)
+        return (
+            f'YouTube: {video.render_name()} - {minutes}:{seconds:02d} - '
+            f'{likes:,} likes - {views:,} views - {added:,} times added - '
+            f'{local_likes:,} likes so far'
+        )
