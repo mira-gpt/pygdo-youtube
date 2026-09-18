@@ -29,13 +29,17 @@ class GDO_YouTubeAbo(GDO):
         return cls.table().get_by_vals({key: value})
 
     @classmethod
-    async def announce(cls, text: str, url: str, origin_channel=None, origin_user=None):
+    async def announce(cls, video, origin_channel=None, origin_user=None):
+        from gdo.youtube.module_youtube import module_youtube
         for abo in cls.table().select().exec().fetch_all():
             if channel := abo.gdo_value('yta_channel'):
                 if origin_channel and channel.get_id() == origin_channel.get_id():
                     continue
-                await channel.send_text('msg_youtube_shared', (text, url))
+                await channel.send_text('msg_youtube_shared', (
+                    module_youtube.render_announcement(video, channel.get_render_mode()), video.gdo_val('yt_url')))
             elif user := abo.gdo_value('yta_user'):
                 if not origin_channel and origin_user and user.get_id() == origin_user.get_id():
                     continue
-                await user.send('msg_youtube_shared', (text, url))
+                await user.send('msg_youtube_shared', (
+                    module_youtube.render_announcement(video, user.get_server().get_connector().get_render_mode()),
+                    video.gdo_val('yt_url')))

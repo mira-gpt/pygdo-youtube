@@ -3,6 +3,7 @@ from gdo.base.GDO import GDO
 from gdo.base.GDO_Module import GDO_Module
 from gdo.base.Logger import Logger
 from gdo.base.Message import Message
+from gdo.base.Render import Render
 from gdo.ui.GDT_Link import GDT_Link
 from gdo.youtube.GDO_YouTubeVideo import GDO_YouTubeVideo
 from gdo.youtube.GDO_YouTubeVote import GDO_YouTubeVote
@@ -35,12 +36,10 @@ class module_youtube(GDO_Module):
         if not video_id:
             return
         video, created = await self.store_video(video_id)
-        message.result(self.render_announcement(video))
+        message.result(self.render_announcement(video, message._env_server.get_render_mode()))
         await message.deliver(with_events=False)
         if created:
-            await GDO_YouTubeAbo.announce(
-                self.render_announcement(video), video.gdo_val('yt_url'),
-                message._env_channel, message._env_user)
+            await GDO_YouTubeAbo.announce(video, message._env_channel, message._env_user)
 
     async def store_video(self, video_id: str) -> tuple[GDO_YouTubeVideo, bool]:
         table = GDO_YouTubeVideo.table()
@@ -84,7 +83,7 @@ class module_youtube(GDO_Module):
         return video.set_values(values)
 
     @staticmethod
-    def render_announcement(video: GDO_YouTubeVideo) -> str:
+    def render_announcement(video: GDO_YouTubeVideo, mode=None) -> str:
         duration = int(video.gdo_val('yt_duration') or 0)
         minutes, seconds = divmod(duration, 60)
         views = int(video.gdo_val('yt_views') or 0)
@@ -92,7 +91,7 @@ class module_youtube(GDO_Module):
         added = int(video.gdo_val('yt_times_added') or 0)
         local_likes = int(video.gdo_val('yt_vote_count') or 0)
         return (
-            f'YouTube: {video.render_name()} - {minutes}:{seconds:02d} - '
+            f'YouTube: {Render.bold(video.render_name(), mode)} - {minutes}:{seconds:02d} - '
             f'{likes:,} YouTube likes - {views:,} views - {added:,} times added - '
             f'{local_likes:,} Dog likes so far'
         )
