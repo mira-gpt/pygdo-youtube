@@ -35,6 +35,12 @@ class module_youtube(GDO_Module):
         table = GDO_YouTubeVideo.table()
         if existing := table.get_by_vals({'yt_video_id': video_id}):
             existing.increase('yt_times_added')
+            if not int(existing.gdo_val('yt_duration') or 0):
+                try:
+                    metadata = await VideoResolver.resolve(video_id)
+                    self.apply_metadata(existing, metadata).save()
+                except Exception as error:
+                    Logger.exception(error)
             return existing, False
         try:
             metadata = await VideoResolver.resolve(video_id)
@@ -45,7 +51,11 @@ class module_youtube(GDO_Module):
                 'yt_url': VideoResolver.canonical_url(video_id),
                 'yt_title': video_id,
             }).insert(), True
-        return table.blank({
+        return table.blank(self.metadata_values(metadata)).insert(), True
+
+    @staticmethod
+    def metadata_values(metadata) -> dict:
+        return {
             'yt_video_id': metadata.video_id,
             'yt_url': metadata.url,
             'yt_title': metadata.title,
@@ -55,7 +65,12 @@ class module_youtube(GDO_Module):
             'yt_duration': metadata.duration,
             'yt_views': metadata.views,
             'yt_likes': metadata.likes,
-        }).insert(), True
+        }
+
+    def apply_metadata(self, video: GDO_YouTubeVideo, metadata) -> GDO_YouTubeVideo:
+        values = self.metadata_values(metadata)
+        values.pop('yt_video_id')
+        return video.set_values(values)
 
     @staticmethod
     def render_announcement(video: GDO_YouTubeVideo) -> str:
