@@ -33,13 +33,11 @@ class GDO_YouTubeAbo(GDO):
         from gdo.youtube.module_youtube import module_youtube
         for abo in cls.table().select().exec().fetch_all():
             if channel := abo.gdo_value('yta_channel'):
-                if origin_channel and channel.get_id() == origin_channel.get_id():
-                    continue
-                await channel.send_text('msg_youtube_shared', (
+                key = 'msg_youtube_peeked' if origin_channel and channel.get_id() == origin_channel.get_id() else 'msg_youtube_shared'
+                await channel.send_text(key, (
                     module_youtube.render_announcement(video, channel.get_render_mode()), video.gdo_val('yt_url')))
             elif user := abo.gdo_value('yta_user'):
-                if not origin_channel and origin_user and user.get_id() == origin_user.get_id():
-                    continue
-                await user.send('msg_youtube_shared', (
+                key = 'msg_youtube_peeked' if not origin_channel and origin_user and user.get_id() == origin_user.get_id() else 'msg_youtube_shared'
+                await user.send(key, (
                     module_youtube.render_announcement(video, user.get_server().get_connector().get_render_mode()),
                     video.gdo_val('yt_url')))

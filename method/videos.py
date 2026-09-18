@@ -2,6 +2,7 @@ from gdo.base.GDO import GDO
 from gdo.base.GDT import GDT
 from gdo.base.Query import Query
 from gdo.base.Render import Mode
+from gdo.core.GDT_Bool import GDT_Bool
 from gdo.table.MethodQueryTable import MethodQueryTable
 from gdo.table.GDT_Table import TableMode
 from gdo.message.GDT_HTML import GDT_HTML
@@ -19,6 +20,14 @@ class videos(MethodQueryTable):
 
     def gdo_table(self) -> GDO:
         return GDO_YouTubeVideo.table()
+
+    @classmethod
+    def gdo_method_config_channel(cls) -> list[GDT]:
+        return [
+            # Output is governed solely by the explicit $yta subscription.
+            # This per-channel setting only controls link analysis.
+            GDT_Bool('yt_peek').not_null().initial('1'),
+        ]
 
     def gdo_execute(self) -> GDT:
         if not self._env_http and not self._raw_args.pargs and not self._raw_args.args:
