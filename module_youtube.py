@@ -21,9 +21,10 @@ class module_youtube(GDO_Module):
         Application.EVENTS.subscribe('new_message', self.on_new_message)
 
     async def on_new_message(self, message: Message):
-        if message.message().startswith(message.get_trigger()):
+        text = message._message
+        if text.startswith(message.get_trigger()):
             return
-        video_id = VideoResolver.video_id(message.message())
+        video_id = VideoResolver.video_id(text)
         if not video_id:
             return
         video, created = await self.store_video(video_id)
