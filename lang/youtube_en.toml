@@ -11,6 +11,7 @@ msg_youtube_commands = "YouTube: $yt <page> [--search=<term>] — list videos; $
 msg_youtube_subscribed = "This context now receives newly shared YouTube videos."
 msg_youtube_unsubscribed = "This context no longer receives YouTube video sharing."
 msg_youtube_shared = "New global video: %s — %s"
+msg_youtube_shared_by = "New global video shared by %s: %s — %s"
 msg_youtube_peeked = "YouTube link found: %s — %s"
 yt_video_id = "YouTube video ID"
 yt_url = "Video URL"
