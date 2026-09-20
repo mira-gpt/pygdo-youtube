@@ -92,11 +92,8 @@ class module_youtube(GDO_Module):
         minutes, seconds = divmod(duration, 60)
         views = int(video.gdo_val('yt_views') or 0)
         likes = int(video.gdo_val('yt_likes') or 0)
-        added = int(video.gdo_val('yt_times_added') or 0)
-        local_likes = int(video.gdo_val('yt_vote_count') or 0)
         video_id = video.get_id()
         return (
             f'YouTube #{video_id}: {Render.bold(video.render_name(), mode)} - {minutes}:{seconds:02d} - '
-            f'{likes:,} YouTube likes - {views:,} views - {added:,} times added - '
-            f'{local_likes:,} Dog likes so far - Like: $ytl {video_id}'
+            f'{likes:,} YouTube likes - {views:,} views - Like with $ytl {video_id}'
         )

@@ -1,6 +1,8 @@
 import unittest
+from unittest.mock import patch
 
 from gdo.youtube.VideoResolver import VideoResolver
+from gdo.youtube.module_youtube import module_youtube
 
 
 class VideoResolverTest(unittest.TestCase):
@@ -27,3 +29,22 @@ class VideoResolverTest(unittest.TestCase):
         self.assertEqual('303', data['videoDetails']['lengthSeconds'])
         self.assertEqual(42, VideoResolver._number(data['videoDetails']['viewCount']))
         self.assertEqual(7, VideoResolver._number(data['microformat']['playerMicroformatRenderer']['likeCount']))
+
+    def test_announcement_uses_the_short_like_prompt(self):
+        class Video:
+            def gdo_val(self, field):
+                return {'yt_duration': 151, 'yt_views': 29414845, 'yt_likes': 216809}.get(field)
+
+            def get_id(self):
+                return 35
+
+            def render_name(self):
+                return 'Touch The Sky'
+
+        with patch('gdo.youtube.module_youtube.Render.bold', side_effect=lambda text, mode: text):
+            text = module_youtube.render_announcement(Video())
+
+        self.assertEqual(
+            'YouTube #35: Touch The Sky - 2:31 - 216,809 YouTube likes - 29,414,845 views - Like with $ytl 35',
+            text,
+        )
