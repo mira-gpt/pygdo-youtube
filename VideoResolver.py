@@ -57,7 +57,23 @@ class VideoResolver:
     def canonical_url(cls, video_id: str) -> str:
         if not cls.VIDEO_ID.fullmatch(video_id):
             raise ValueError('Invalid YouTube video ID')
-        return f'https://www.youtube.com/watch?v={video_id}'
+        return f'https://youtu.be/{video_id}'
+
+    @classmethod
+    def canonicalize_text_url(cls, text: str) -> str:
+        """Replace the first recognised YouTube URL with its short form.
+
+        The source text stays intact apart from the URL itself.  Query
+        parameters are intentionally omitted: the video ID already identifies
+        the video and the parameters only make IRC announcements longer.
+        """
+        if not (match := cls.URL.search(text)):
+            return text
+        end = match.end()
+        if end < len(text) and text[end] in '?&':
+            while end < len(text) and not text[end].isspace():
+                end += 1
+        return text[:match.start()] + cls.canonical_url(match.group(1)) + text[end:]
 
     @classmethod
     async def resolve(cls, video_id: str) -> YouTubeMetadata:

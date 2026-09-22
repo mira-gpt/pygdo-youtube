@@ -51,4 +51,5 @@ class GDO_YouTubeAbo(GDO):
 
     @staticmethod
     def render_announcement_url(video, original_text: str) -> str:
-        return original_text or video.gdo_val('yt_url')
+        from gdo.youtube.VideoResolver import VideoResolver
+        return VideoResolver.canonicalize_text_url(original_text) if original_text else video.gdo_val('yt_url')

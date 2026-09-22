@@ -24,6 +24,15 @@ class VideoResolverTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             VideoResolver.canonical_url('nope')
 
+    def test_canonical_url_uses_the_short_youtu_be_host(self):
+        self.assertEqual('https://youtu.be/dQw4w9WgXcQ', VideoResolver.canonical_url('dQw4w9WgXcQ'))
+
+    def test_canonicalize_text_url_preserves_words_and_removes_parameters(self):
+        self.assertEqual(
+            'Watch https://youtu.be/dQw4w9WgXcQ please.',
+            VideoResolver.canonicalize_text_url(
+                'Watch https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp=tracking please.'))
+
     def test_extracts_player_response_counts(self):
         document = 'prefix ytInitialPlayerResponse = {"videoDetails":{"lengthSeconds":"303","viewCount":"42"},"microformat":{"playerMicroformatRenderer":{"likeCount":"7"}}}; suffix'
         data = VideoResolver._player_response(document)
@@ -56,6 +65,6 @@ class VideoResolverTest(unittest.TestCase):
                 return {'yt_url': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'}.get(field)
 
         self.assertEqual(
-            'You should watch this: https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            'You should watch this: https://youtu.be/dQw4w9WgXcQ',
             GDO_YouTubeAbo.render_announcement_url(
                 Video(), 'You should watch this: https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
