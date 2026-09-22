@@ -46,7 +46,7 @@ class VideoResolver:
     VIDEO_ID = re.compile(r'^[A-Za-z0-9_-]{11}$')
     URL = re.compile(
         r'https?://(?:www\.)?(?:youtube\.com/(?:watch\?[^\s]*?v=|shorts/|live/|embed/)|youtu\.be/)'
-        r'([A-Za-z0-9_-]{11})(?:[^A-Za-z0-9_-]|$)', re.IGNORECASE)
+        r'([A-Za-z0-9_-]{11})(?=[^A-Za-z0-9_-]|$)', re.IGNORECASE)
 
     @classmethod
     def video_id(cls, text: str) -> str | None:

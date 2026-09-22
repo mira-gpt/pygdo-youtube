@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from gdo.youtube.VideoResolver import VideoResolver
+from gdo.youtube.GDO_YouTubeAbo import GDO_YouTubeAbo
 from gdo.youtube.module_youtube import module_youtube
 
 
@@ -48,3 +49,13 @@ class VideoResolverTest(unittest.TestCase):
             'YouTube #35: Touch The Sky - 2:31 - 216,809 YouTube likes - 29,414,845 views - Like with $ytl 35',
             text,
         )
+
+    def test_announcement_url_appends_the_complete_original_message_last(self):
+        class Video:
+            def gdo_val(self, field):
+                return {'yt_url': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'}.get(field)
+
+        self.assertEqual(
+            'You should watch this: https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            GDO_YouTubeAbo.render_announcement_url(
+                Video(), 'You should watch this: https://www.youtube.com/watch?v=dQw4w9WgXcQ'))

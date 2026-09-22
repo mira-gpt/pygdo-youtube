@@ -43,7 +43,9 @@ class module_youtube(GDO_Module):
         # $yta is the sole output control. Peeking only records a new video
         # and begins its one-time subscription announcement.
         if created:
-            await GDO_YouTubeAbo.announce(video, message._env_channel, message._env_user)
+            await GDO_YouTubeAbo.announce(
+                video, message._env_channel, message._env_user,
+                text)
 
     async def store_video(self, video_id: str) -> tuple[GDO_YouTubeVideo, bool]:
         table = GDO_YouTubeVideo.table()

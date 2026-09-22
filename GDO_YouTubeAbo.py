@@ -30,20 +30,25 @@ class GDO_YouTubeAbo(GDO):
         return cls.table().get_by_vals({key: value})
 
     @classmethod
-    async def announce(cls, video, origin_channel=None, origin_user=None):
+    async def announce(cls, video, origin_channel=None, origin_user=None, original_text: str = ''):
         from gdo.youtube.module_youtube import module_youtube
+        url = cls.render_announcement_url(video, original_text)
         for abo in cls.table().select().exec().fetch_all():
             if channel := abo.gdo_value('yta_channel'):
                 announcement = module_youtube.render_announcement(video, channel.get_render_mode())
                 if origin_channel and channel.get_id() == origin_channel.get_id():
-                    await channel.send_text('msg_youtube_peeked', (announcement, video.gdo_val('yt_url')))
+                    await channel.send_text('msg_youtube_peeked', (announcement, url))
                 elif origin_user:
                     submitter = Render.bold(origin_user.render_name(), channel.get_render_mode())
-                    await channel.send_text('msg_youtube_shared_by', (submitter, announcement, video.gdo_val('yt_url')))
+                    await channel.send_text('msg_youtube_shared_by', (submitter, announcement, url))
                 else:
-                    await channel.send_text('msg_youtube_shared', (announcement, video.gdo_val('yt_url')))
+                    await channel.send_text('msg_youtube_shared', (announcement, url))
             elif user := abo.gdo_value('yta_user'):
                 key = 'msg_youtube_peeked' if not origin_channel and origin_user and user.get_id() == origin_user.get_id() else 'msg_youtube_shared'
                 await user.send(key, (
                     module_youtube.render_announcement(video, user.get_server().get_connector().get_render_mode()),
-                    video.gdo_val('yt_url')))
+                    url))
+
+    @staticmethod
+    def render_announcement_url(video, original_text: str) -> str:
+        return original_text or video.gdo_val('yt_url')
