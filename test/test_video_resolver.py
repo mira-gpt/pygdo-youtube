@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 from gdo.youtube.VideoResolver import VideoResolver
 from gdo.youtube.GDO_YouTubeAbo import GDO_YouTubeAbo
@@ -75,3 +75,34 @@ class VideoResolverTest(unittest.TestCase):
         self.assertTrue(module_youtube.should_announce(True, 'once'))
         self.assertFalse(module_youtube.should_announce(False, 'once'))
         self.assertFalse(module_youtube.should_announce(True, 'never'))
+
+    def test_channel_announcement_mode_uses_the_enum_key(self):
+        class Message:
+            _message = 'https://youtu.be/dQw4w9WgXcQ'
+            _env_channel = object()
+            _env_user = object()
+
+            def get_trigger(self):
+                return '$'
+
+        class ChannelConfig:
+            def env_copy(self, message):
+                return self
+
+            def get_config_channel_value(self, key):
+                if key == 'yt_peek':
+                    return True
+                raise AssertionError(f'Enum {key} must be read as its raw key.')
+
+            def get_config_channel_val(self, key):
+                if key != 'yt_announce':
+                    raise AssertionError(f'Unexpected raw enum {key}.')
+                return 'once'
+
+        module = module_youtube()
+        module.store_video = AsyncMock(return_value=(object(), False))
+        with patch('gdo.youtube.method.videos.videos', return_value=ChannelConfig()), \
+             patch.object(GDO_YouTubeAbo, 'announce', new_callable=AsyncMock) as announce:
+            import asyncio
+            asyncio.run(module.on_new_message(Message()))
+        announce.assert_not_awaited()

@@ -38,7 +38,9 @@ class module_youtube(GDO_Module):
             method = videos().env_copy(message)
             if not method.get_config_channel_value('yt_peek'):
                 return
-            announce_mode = method.get_config_channel_value('yt_announce')
+            # Enums need their stored key (``once``/``multiple``/``never``),
+            # not their human-readable translated display value.
+            announce_mode = method.get_config_channel_val('yt_announce')
         video_id = VideoResolver.video_id(text)
         if not video_id:
             return
