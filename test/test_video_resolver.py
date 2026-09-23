@@ -68,3 +68,10 @@ class VideoResolverTest(unittest.TestCase):
             'You should watch this: https://youtu.be/dQw4w9WgXcQ',
             GDO_YouTubeAbo.render_announcement_url(
                 Video(), 'You should watch this: https://www.youtube.com/watch?v=dQw4w9WgXcQ'))
+
+    def test_announcement_modes_handle_duplicate_shares(self):
+        self.assertTrue(module_youtube.should_announce(True, 'multiple'))
+        self.assertTrue(module_youtube.should_announce(False, 'multiple'))
+        self.assertTrue(module_youtube.should_announce(True, 'once'))
+        self.assertFalse(module_youtube.should_announce(False, 'once'))
+        self.assertFalse(module_youtube.should_announce(True, 'never'))

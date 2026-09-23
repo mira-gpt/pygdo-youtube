@@ -3,6 +3,7 @@ from gdo.base.GDT import GDT
 from gdo.base.Query import Query
 from gdo.base.Render import Mode
 from gdo.core.GDT_Bool import GDT_Bool
+from gdo.core.GDT_Enum import GDT_Enum
 from gdo.table.MethodQueryTable import MethodQueryTable
 from gdo.table.GDT_Table import TableMode
 from gdo.message.GDT_HTML import GDT_HTML
@@ -27,6 +28,11 @@ class videos(MethodQueryTable):
             # Output is governed solely by the explicit $yta subscription.
             # This per-channel setting only controls link analysis.
             GDT_Bool('yt_peek').not_null().initial('1'),
+            GDT_Enum('yt_announce').choices({
+                'multiple': 'Announce every share',
+                'once': 'Announce new videos once',
+                'never': 'Do not announce videos',
+            }).not_null().initial('once'),
         ]
 
     def gdo_execute(self) -> GDT:

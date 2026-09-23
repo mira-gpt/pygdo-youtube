@@ -32,20 +32,25 @@ class module_youtube(GDO_Module):
         text = message._message
         if text.startswith(message.get_trigger()):
             return
+        announce_mode = 'once'
         if message._env_channel:
             from gdo.youtube.method.videos import videos
-            if not videos().env_copy(message).get_config_channel_value('yt_peek'):
+            method = videos().env_copy(message)
+            if not method.get_config_channel_value('yt_peek'):
                 return
+            announce_mode = method.get_config_channel_value('yt_announce')
         video_id = VideoResolver.video_id(text)
         if not video_id:
             return
         video, created = await self.store_video(video_id)
-        # $yta is the sole output control. Peeking only records a new video
-        # and begins its one-time subscription announcement.
-        if created:
+        if self.should_announce(created, announce_mode):
             await GDO_YouTubeAbo.announce(
                 video, message._env_channel, message._env_user,
                 text)
+
+    @staticmethod
+    def should_announce(created: bool, mode: str) -> bool:
+        return mode == 'multiple' or (mode == 'once' and created)
 
     async def store_video(self, video_id: str) -> tuple[GDO_YouTubeVideo, bool]:
         table = GDO_YouTubeVideo.table()
