@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import re
+import unicodedata
 from dataclasses import dataclass
 from html import unescape
 from html.parser import HTMLParser
@@ -58,6 +59,23 @@ class VideoResolver:
         if not cls.VIDEO_ID.fullmatch(video_id):
             raise ValueError('Invalid YouTube video ID')
         return f'https://youtu.be/{video_id}'
+
+    @staticmethod
+    def has_displayable_title(title: str) -> bool:
+        """Return whether a title contains something a reader can see.
+
+        YouTube permits titles made solely from whitespace or Unicode filler
+        characters.  They create a large blank announcement in IRC, so do not
+        treat them as a shareable title.
+        """
+        for char in unicodedata.normalize('NFKC', str(title or '')):
+            category = unicodedata.category(char)
+            if category[0] not in {'L', 'N', 'P', 'S'}:
+                continue
+            name = unicodedata.name(char, '')
+            if 'FILLER' not in name and name != 'BRAILLE PATTERN BLANK':
+                return True
+        return False
 
     @classmethod
     def canonicalize_text_url(cls, text: str) -> str:

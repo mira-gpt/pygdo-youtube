@@ -46,6 +46,8 @@ class module_youtube(GDO_Module):
             return
         video, created = await self.store_video(video_id)
         if self.should_announce(created, announce_mode):
+            if not VideoResolver.has_displayable_title(video.gdo_val('yt_title')):
+                return
             await GDO_YouTubeAbo.announce(
                 video, message._env_channel, message._env_user,
                 text)

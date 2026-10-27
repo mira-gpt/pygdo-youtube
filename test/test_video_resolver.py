@@ -27,6 +27,11 @@ class VideoResolverTest(unittest.TestCase):
     def test_canonical_url_uses_the_short_youtu_be_host(self):
         self.assertEqual('https://youtu.be/dQw4w9WgXcQ', VideoResolver.canonical_url('dQw4w9WgXcQ'))
 
+    def test_rejects_titles_made_only_from_whitespace_or_unicode_fillers(self):
+        for title in ('', '   ', '\u200b\u2060', '\u3164' * 8, '\u2800' * 8):
+            self.assertFalse(VideoResolver.has_displayable_title(title))
+        self.assertTrue(VideoResolver.has_displayable_title('Actual title'))
+
     def test_canonicalize_text_url_preserves_words_and_removes_parameters(self):
         self.assertEqual(
             'Watch https://youtu.be/dQw4w9WgXcQ please.',
@@ -101,6 +106,37 @@ class VideoResolverTest(unittest.TestCase):
 
         module = module_youtube()
         module.store_video = AsyncMock(return_value=(object(), False))
+        with patch('gdo.youtube.method.videos.videos', return_value=ChannelConfig()), \
+             patch.object(GDO_YouTubeAbo, 'announce', new_callable=AsyncMock) as announce:
+            import asyncio
+            asyncio.run(module.on_new_message(Message()))
+        announce.assert_not_awaited()
+
+    def test_invisible_title_is_not_announced(self):
+        class Message:
+            _message = 'https://youtu.be/dQw4w9WgXcQ'
+            _env_channel = object()
+            _env_user = object()
+
+            def get_trigger(self):
+                return '$'
+
+        class ChannelConfig:
+            def env_copy(self, message):
+                return self
+
+            def get_config_channel_value(self, key):
+                return True
+
+            def get_config_channel_val(self, key):
+                return 'once'
+
+        class Video:
+            def gdo_val(self, field):
+                return '\u3164' * 8 if field == 'yt_title' else None
+
+        module = module_youtube()
+        module.store_video = AsyncMock(return_value=(Video(), True))
         with patch('gdo.youtube.method.videos.videos', return_value=ChannelConfig()), \
              patch.object(GDO_YouTubeAbo, 'announce', new_callable=AsyncMock) as announce:
             import asyncio
