@@ -21,4 +21,4 @@ class TestVideoLists(unittest.TestCase):
         self.assertEqual('yt', videos.gdo_trig())
 
     def test_sidebar_icon_has_fallback(self):
-        self.assertIn('link', IconUTF8.MAP())
+        self.assertIn('youtube', IconUTF8.MAP())
