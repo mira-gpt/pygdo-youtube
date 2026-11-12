@@ -1,6 +1,7 @@
 from gdo.base.GDO import GDO
 from gdo.base.GDT import GDT
 from gdo.core.GDT_AutoInc import GDT_AutoInc
+from gdo.core.GDT_Bool import GDT_Bool
 from gdo.core.GDT_Creator import GDT_Creator
 from gdo.core.GDT_String import GDT_String
 from gdo.core.GDT_Text import GDT_Text
@@ -31,6 +32,7 @@ class GDO_YouTubeVideo(WithYouTubeVotes, GDO):
             GDT_YouTubeDuration('yt_duration').bytes(4).not_null().initial('0'),
             GDT_YouTubeCount('yt_views').bytes(8).not_null().initial('0'),
             GDT_YouTubeCount('yt_likes').bytes(8).not_null().initial('0'),
+            GDT_Bool('yt_is_add').not_null().initial('0'),
             GDT_UInt('yt_times_added').not_null().initial('1'),
             GDT_Creator('yt_creator'),
             GDT_Created('yt_created'),
