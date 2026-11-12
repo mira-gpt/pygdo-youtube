@@ -22,7 +22,10 @@ class module_youtube(GDO_Module):
 
     def gdo_init_sidebar(self, page):
         page._left_bar.add_field(
-            GDT_Link().href(self.href('videos', '&page=1')).text('link_youtube_popular').icon('youtube')
+            GDT_Link().href(self.href('videos', '&page=1')).text('link_youtube_popular').icon('link')
+        )
+        page._left_bar.add_field(
+            GDT_Link().href(self.href('ads', '&page=1')).text('link_youtube_ads').icon('link')
         )
 
     def gdo_subscribe_events(self):

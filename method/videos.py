@@ -22,6 +22,12 @@ class videos(MethodQueryTable):
     def gdo_table(self) -> GDO:
         return GDO_YouTubeVideo.table()
 
+    def is_ad_list(self) -> bool:
+        return False
+
+    def gdo_table_query(self) -> Query:
+        return super().gdo_table_query().where(f'yt_is_add={int(self.is_ad_list())}')
+
     @classmethod
     def gdo_method_config_channel(cls) -> list[GDT]:
         return [
